@@ -182,56 +182,80 @@ class Sql_Beispiele:
             print(f"Fehler beim Löschen der Datenbank: {e}")
 
     @staticmethod
+    @staticmethod
     def main():
         mydb, my_cursor = Sql_Beispiele.connection()
         if mydb and my_cursor:
-            #Erstellen
-            Sql_Beispiele.create_database(my_cursor, "meine_datenbank")
-            Sql_Beispiele.create_table(my_cursor, "meine_datenbank", "Kunden",
-                                       "(ID INT AUTO_INCREMENT PRIMARY KEY, name VARCHAR(255), adresse VARCHAR(255), age INT)")
+            Sql_Beispiele.setup_database(mydb, my_cursor)
+            Sql_Beispiele.insert_example_data(mydb, my_cursor)
+            Sql_Beispiele.update_example_data(mydb, my_cursor)
+            Sql_Beispiele.select_examples(my_cursor)
+            Sql_Beispiele.advanced_query_examples(my_cursor)
+            Sql_Beispiele.cleanup_database(mydb, my_cursor)
 
-            Sql_Beispiele.create_table(my_cursor, "meine_datenbank", "Bestellungen",
-                                       "(ID INT AUTO_INCREMENT PRIMARY KEY, bestellnummer VARCHAR(255), kunden_id INT, FOREIGN KEY (kunden_id) REFERENCES Kunden(ID) ON DELETE CASCADE)")
+    @staticmethod
+    def setup_database(my_cursor):
+        """Erstellt Datenbank und Tabellen"""
+        Sql_Beispiele.create_database(my_cursor, "meine_datenbank")
+        Sql_Beispiele.create_table(my_cursor, "meine_datenbank", "kunden",
+                                   "(ID INT AUTO_INCREMENT PRIMARY KEY, name VARCHAR(255), adresse VARCHAR(255), age INT)")
+        Sql_Beispiele.create_table(my_cursor, "meine_datenbank", "Bestellungen",
+                                   "(ID INT AUTO_INCREMENT PRIMARY KEY, bestellnummer VARCHAR(255), kunden_id INT, FOREIGN KEY (kunden_id) REFERENCES Kunden(ID) ON DELETE CASCADE)")
 
-            kunden_id_1 = Sql_Beispiele.insert(mydb, my_cursor, "meine_datenbank", "kunden", "name, adresse, age", "'Max Mustermann', 'Musterstraße 1', 33")
-            kunden_id_2 = Sql_Beispiele.insert(mydb, my_cursor, "meine_datenbank", "kunden", "name, adresse, age", "'Erika Mustermann', 'Beispielweg 2', 18")
-            if kunden_id_1 and kunden_id_2:
-                Sql_Beispiele.insert(mydb, my_cursor, "meine_datenbank", "bestellungen", "bestellnummer, kunden_id", f"'B1001', {kunden_id_1}")
-                Sql_Beispiele.insert(mydb, my_cursor, "meine_datenbank", "bestellungen", "bestellnummer, kunden_id", f"'B1002', {kunden_id_2}")
+    @staticmethod
+    def insert_example_data(mydb, my_cursor):
+        """Fügt Beispieldaten ein"""
+        kunden_id_1 = Sql_Beispiele.insert(mydb, my_cursor, "meine_datenbank", "kunden", "name, adresse, age",
+                                           "'Max Mustermann', 'Musterstraße 1', 33")
+        kunden_id_2 = Sql_Beispiele.insert(mydb, my_cursor, "meine_datenbank", "kunden", "name, adresse, age",
+                                           "'Erika Mustermann', 'Beispielweg 2', 18")
+        if kunden_id_1 and kunden_id_2:
+            Sql_Beispiele.insert(mydb, my_cursor, "meine_datenbank", "bestellungen", "bestellnummer, kunden_id",
+                                 f"'B1001', {kunden_id_1}")
+            Sql_Beispiele.insert(mydb, my_cursor, "meine_datenbank", "bestellungen", "bestellnummer, kunden_id",
+                                 f"'B1002', {kunden_id_2}")
 
-            #Aktualisieren
-            Sql_Beispiele.update_table(mydb, my_cursor, "meine_datenbank", "kunden", "adresse = 'Neue Musterstraße 2'","name = 'Max Mustermann'")
+    @staticmethod
+    def update_example_data(mydb, my_cursor):
+        """Aktualisiert Beispieldaten"""
+        Sql_Beispiele.update_table(mydb, my_cursor, "meine_datenbank", "kunden", "adresse = 'Neue Musterstraße 2'",
+                                   "name = 'Max Mustermann'")
 
-            # Beispiel: Alle Einträge auswählen
-            print("\nAlle Einträge in der Tabelle:")
-            Sql_Beispiele.select_table(my_cursor, "meine_datenbank", "kunden")
+    @staticmethod
+    def select_examples(my_cursor):
+        """Demonstriert verschiedene SELECT-Operationen"""
+        print("\nAlle Einträge in der Tabelle:")
+        Sql_Beispiele.select_table(my_cursor, "meine_datenbank", "kunden")
 
-            # Beispiel: Nur bestimmte Spalten auswählen
-            print("\nNur Name und Alter auswählen:")
-            Sql_Beispiele.select_table(my_cursor, "meine_datenbank", "kunden", "name, age")
+        print("\nNur Name und Alter auswählen:")
+        Sql_Beispiele.select_table(my_cursor, "meine_datenbank", "kunden", "name, age")
 
-            # Beispiel: Daten mit einer Bedingung filtern
-            print("\nNur Personen mit Alter über 30 auswählen:")
-            Sql_Beispiele.select_table(my_cursor, "meine_datenbank", "kunden", "*", "age > 30")
+        print("\nNur Personen mit Alter über 30 auswählen:")
+        Sql_Beispiele.select_table(my_cursor, "meine_datenbank", "kunden", "*", "age > 30")
 
-            # JOIN-Beispiele
-            Sql_Beispiele.join(my_cursor, "meine_datenbank")
+    @staticmethod
+    def advanced_query_examples(my_cursor):
+        """Demonstriert erweiterte Abfragen"""
+        # JOIN-Beispiele
+        Sql_Beispiele.join(my_cursor, "meine_datenbank")
 
-            # ORDER BY Beispiel
-            Sql_Beispiele.order_by(my_cursor, "meine_datenbank", "kunden", "name")
+        # ORDER BY Beispiel
+        Sql_Beispiele.order_by(my_cursor, "meine_datenbank", "kunden", "name")
 
-            # WHERE Beispiel
-            Sql_Beispiele.where(my_cursor, "meine_datenbank", "kunden", "name = 'Max Mustermann'")
+        # WHERE Beispiel
+        Sql_Beispiele.where(my_cursor, "meine_datenbank", "kunden", "name = 'Max Mustermann'")
 
-            # LIMIT Beispiel
-            Sql_Beispiele.limit(my_cursor, "meine_datenbank", "kunden", 1)
+        # LIMIT Beispiel
+        Sql_Beispiele.limit(my_cursor, "meine_datenbank", "kunden", 1)
 
-            #Aufräumen
-            Sql_Beispiele.delete_table(my_cursor, "meine_datenbank", "bestellungen")
-            Sql_Beispiele.delete_table(my_cursor, "meine_datenbank", "kunden")
-            Sql_Beispiele.drop_database(my_cursor, "meine_datenbank")
-            my_cursor.close()
-            mydb.close()
+    @staticmethod
+    def cleanup_database(mydb, my_cursor):
+        """Räumt die Datenbank auf"""
+        Sql_Beispiele.delete_table(my_cursor, "meine_datenbank", "bestellungen")
+        Sql_Beispiele.delete_table(my_cursor, "meine_datenbank", "kunden")
+        Sql_Beispiele.drop_database(my_cursor, "meine_datenbank")
+        my_cursor.close()
+        mydb.close()
 
 if __name__ == "__main__":
     Sql_Beispiele.main()
